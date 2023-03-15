@@ -25,4 +25,4 @@ Object detection and single image super-resolution are classic problems in compu
 
 ## References
 [RLFN](https://github.com/bytedance/RLFN)
-[EDSR}(https://github.com/sanghyun-son/EDSR-PyTorch)
+[EDSR](https://github.com/sanghyun-son/EDSR-PyTorch)
