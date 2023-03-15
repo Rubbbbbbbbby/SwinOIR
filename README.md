@@ -1,10 +1,10 @@
 ## [A Framework for Real-time Object Detection and Image Restoration](https://arxiv.org/abs/)
 ### Overall two-stage framework
 <p align="center">
-  <img src="figure_stage.pdf" width="480" title="Stage-1">
+  <img src="img/figure_stage.jpg" width="480" title="Stage-1">
 </p>
 
-### Stage-2 Flowchart
+### SwinOIR Network Architecture
 <p align="center">
-  <img src="Figure/figure_stage_2.jpg" width="480" title="Stage-2">
+  <img src="img/figure_swinoir.jpg" width="480" title="Stage-2">
 </p>
