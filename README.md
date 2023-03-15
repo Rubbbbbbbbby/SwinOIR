@@ -24,5 +24,7 @@ Object detection and single image super-resolution are classic problems in compu
 
 
 ## References
-[RLFN](https://github.com/bytedance/RLFN)
-[EDSR](https://github.com/sanghyun-son/EDSR-PyTorch)
+* [RLFN](https://github.com/bytedance/RLFN)
+* [EDSR](https://github.com/sanghyun-son/EDSR-PyTorch)
+* [Swin-Transformer](https://github.com/microsoft/Swin-Transformer)
+* [SwinIR](https://github.com/JingyunLiang/SwinIR)
