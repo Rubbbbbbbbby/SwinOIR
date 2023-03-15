@@ -21,3 +21,8 @@ Object detection and single image super-resolution are classic problems in compu
 ## Dataset
 * DIV2K Dataset [(Download Link)](https://data.vision.ee.ethz.ch/cvl/DIV2K/)
 
+
+
+## References
+[RLFN](https://github.com/bytedance/RLFN)
+[EDSR}(https://github.com/sanghyun-son/EDSR-PyTorch)
