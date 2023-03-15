@@ -31,7 +31,7 @@ Object detection and single image super-resolution are classic problems in compu
 | Connection Method | Set5-PSNR↑ | Set14-PSNR↑ | BSD100-PSNR↑ | Urban100-PSNR↑ |
 | :---: | :---: | :---: | :---: | :---: |
 | DSTB-5 | 30.699 | 27.677 | 26.976 | 24.552 |
-| DSTB-7 | 30.692 | 27.678 | 26.983 | 25.560 |
+| DSTB-7 | 30.692 | 27.678 | 26.983 | 24.560 |
 | IDSTB-5 | **30.778** | **27.738** | **27.071** | **24.640** |
 | IDSTB-7 | 30.693 | 27.662  | 26.974 | 24.539 |
 
