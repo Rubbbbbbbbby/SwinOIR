@@ -22,9 +22,18 @@ Object detection and single image super-resolution are classic problems in compu
 * DIV2K Dataset [(Download Link)](https://data.vision.ee.ethz.ch/cvl/DIV2K/)
 
 ## Experimental Results
+### Example of experimental results of two-stage framework on BSDS300 Dataset
 <p align="center">
   <img src="img/figure_result_bsds.jpg" width="640" title="Stage-1">
 </p>
+
+## Quantitative comparison (average PSNR/SSIM) of image SR on benchmark datasets using different methods
+| Connection Method | Set5-PSNR↑ | Set14-PSNR↑ | BSD100-PSNR↑ | Urban100-PSNR↑ |
+| :---: | :---: | :---: | :---: | :---: |
+| DSTB-5 | 30.699 | 27.677 | 26.976 | 24.552 |
+| DSTB-7 | 30.692 | 27.678 | 26.983 | 25.560 |
+| IDSTB-5 | **30.778** | **27.738** | **27.071** | **24.640** |
+| IDSTB-7 | 30.693 | 27.662  | 26.974 | 24.539 |
 
 ## References
 * [RLFN](https://github.com/bytedance/RLFN)
