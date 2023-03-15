@@ -17,3 +17,7 @@ Object detection and single image super-resolution are classic problems in compu
 * Python >= 3.6
 * Pytorch >= 1.5.0
 * NVIDIA GPU + CUDA CuDNN
+
+## Dataset
+* DIV2K Dataset [(Download Link)](https://data.vision.ee.ethz.ch/cvl/DIV2K/)
+
