@@ -15,12 +15,12 @@ Object detection and single image super-resolution are classic problems in compu
 ## Citation
 If you find our paper useful in your research, please consider citing:
 
-  @article{ju2023framework,
-    title={A Framework for Real-time Object Detection and Image Restoration},
-    author={Ju, Rui-Yang and Chen, Chih-Chia and Chiang, Jen-Shiun and Lin, Yu-Shian and Chen, Wei-Han},
-    journal={arXiv preprint arXiv:2303.09190},
-    year={2023}
-  }
+    @article{ju2023framework,
+      title={A Framework for Real-time Object Detection and Image Restoration},
+      author={Ju, Rui-Yang and Chen, Chih-Chia and Chiang, Jen-Shiun and Lin, Yu-Shian and Chen, Wei-Han},
+      journal={arXiv preprint arXiv:2303.09190},
+      year={2023}
+    }
   
 ## Requirements
 * Linux (Ubuntu)
