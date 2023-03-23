@@ -15,7 +15,7 @@ Object detection and single image super-resolution are classic problems in compu
 
 ## Open-Source
 For research project agreement, we don't release training code, please refer to [EDSR framework](https://github.com/sanghyun-son/EDSR-PyTorch) and our paper for details.
-- [x] Paper of our method[arXiv](https://arxiv.org/abs/2303.09190)
+- [x] Paper of our method [[arXiv]](https://arxiv.org/abs/2303.09190)
 - [x] The pretrained model and test code.
 
 ## Citation
