@@ -59,7 +59,7 @@ class Trainer():
                     for v, p in zip(save_list, postfix):
                         normalized = v[0].mul(255 / self.args.rgb_range)
                         tensor_cpu = normalized.byte().permute(1, 2, 0).cpu()
-                        imageio.imwrite(('..\\experiment\\test\\results-{}\\{}_x{}_epoch{}_{}.png'.format(d.dataset.name,filename[0],scale, epoch, p)), tensor_cpu.numpy())
+                        imageio.imwrite(('C:swinOIR\\experiment\\test\\results-{}\\{}_x{}_epoch{}_{}.png'.format(d.dataset.name,filename[0],scale, epoch, p)), tensor_cpu.numpy())
 
                 self.ckp.log[-1, idx_data, idx_scale] /= len(d)
                 best = self.ckp.log.max(0)
