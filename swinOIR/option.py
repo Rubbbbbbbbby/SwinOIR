@@ -19,7 +19,7 @@ parser.add_argument('--seed', type=int, default=1,
 # Data specifications
 parser.add_argument('--dir_data', type=str, default='C:\swinOIR',
                     help='dataset directory')
-parser.add_argument('--dir_demo', type=str, default='../test',
+parser.add_argument('--dir_demo', type=str, default='C:\swinOIR//test',
                     help='demo image directory')
 parser.add_argument('--data_test', type=str, default='Set5',
                     help='test dataset name')
