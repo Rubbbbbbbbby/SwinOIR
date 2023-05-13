@@ -17,9 +17,9 @@ parser.add_argument('--seed', type=int, default=1,
                     help='random seed')
 
 # Data specifications
-parser.add_argument('--dir_data', type=str, default='C:\swinOIR',
+parser.add_argument('--dir_data', type=str, default='C://swinOIR',
                     help='dataset directory')
-parser.add_argument('--dir_demo', type=str, default='C:\swinOIR//test',
+parser.add_argument('--dir_demo', type=str, default='C://swinOIR//test',
                     help='demo image directory')
 parser.add_argument('--data_test', type=str, default='Set5',
                     help='test dataset name')
@@ -41,7 +41,7 @@ parser.add_argument('--model', default='model',
 
 parser.add_argument('--act', type=str, default='relu',
                     help='activation function')
-parser.add_argument('--pre_train', type=str, default='D:\swinOIR\model_zoo\IDSTB/model\model_best.pt',
+parser.add_argument('--pre_train', type=str, default='D://swinOIR//model_zoo//x4/mode//model_best.pt',
                     help='pre-trained model directory')
 parser.add_argument('--extend', type=str, default='.',
                     help='pre-trained model directory')
@@ -95,7 +95,7 @@ parser.add_argument('--skip_threshold', type=float, default='1e8',
 # Log specifications
 parser.add_argument('--save', type=str, default='./test',
                     help='file name to save')
-parser.add_argument('--load', type=str, default='C:\swinOIR\model_zoo\IDSTB',
+parser.add_argument('--load', type=str, default='C://swinOIRmodel_zoo//x4',
                     help='file name to load')
 parser.add_argument('--resume', type=int, default=0,
                     help='resume from specific checkpoint')
