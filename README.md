@@ -1,7 +1,7 @@
 ## [Resolution Enhancement Processing on Low Quality Images Using Swin Transformer Based on Interval Dense Connection Strategy](https://arxiv.org/abs/2303.09190)
 ### SwinOIR Network Architecture
 <p align="center">
-  <img src="img/figure_swinoir.jpg" width="640" title="Stage-2">
+  <img src="img/figure_swinoir.jpg" width="640" title="Stage-1">
 </p>
 
 ### Overall two-stage framework
