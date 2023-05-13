@@ -1,12 +1,7 @@
 ## [Resolution Enhancement Processing on Low Quality Images Using Swin Transformer Based on Interval Dense Connection Strategy](https://arxiv.org/abs/2303.09190)
 ### SwinOIR Network Architecture
 <p align="center">
-  <img src="img/figure_swinoir.jpg" width="640" title="Stage-1">
-</p>
-
-### Overall two-stage framework
-<p align="center">
-  <img src="img/figure_stage.jpg" width="640" title="Stage-1">
+  <img src="img/figure_swinoir.jpg" width="640" title="swinoir">
 </p>
 
 ## Abstract
@@ -21,9 +16,9 @@ For research project agreement, we don't release training code, please refer to 
 ## Citation
 If you find our paper useful in your research, please consider citing:
 
-    @article{ju2023framework,
-      title={A Framework for Real-time Object Detection and Image Restoration},
-      author={Ju, Rui-Yang and Chen, Chih-Chia and Chiang, Jen-Shiun and Lin, Yu-Shian and Chen, Wei-Han},
+    @article{ju2023resolution,
+      title={Resolution Enhancement Processing on Low Quality Images Using Swin Transformer Based on Interval Dense Connection Strategy},
+      author={Ju, Rui-Yang and Chen, Chih-Chia and Chiang, Jen-Shiun and Lin, Yu-Shian and Chen, Wei-Han and Chien, Chun-Tse},
       journal={arXiv preprint arXiv:2303.09190},
       year={2023}
     }
@@ -54,6 +49,11 @@ If you find our paper useful in your research, please consider citing:
 | DSTB-7 | 30.692 | 27.678 | 26.983 | 24.560 |
 | IDSTB-5 | **30.778** | **27.738** | **27.071** | **24.640** |
 | IDSTB-7 | 30.693 | 27.662  | 26.974 | 24.539 |
+
+### Overall two-stage framework
+<p align="center">
+  <img src="img/figure_stage.jpg" width="640" title="Stage-1">
+</p>
 
 ## References
 * [RLFN](https://github.com/bytedance/RLFN)
