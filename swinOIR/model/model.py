@@ -15,9 +15,9 @@ class model(nn.Module):
         width = (720 // upscale // window_size + 1) * window_size
 
 
-        self.transformer = swinOIR_IDSTB.swinOIR(upscale=4, img_size=(height, width),
-                                    window_size=window_size, img_range=1.,
-                                     embed_dim=60, num_heads=6, mlp_ratio=2, upsampler='pixelshuffle')
+        self.transformer = swinOIR.swinOIR(upscale=4, img_size=(height, width),
+                   window_size=window_size, img_range=1., depths=[4, 4, 4, 4],
+                   embed_dim=60, num_heads=[6, 6, 6, 6], mlp_ratio=2, upsampler='pixelshuffle')
                    
     def forward(self, x):
         
