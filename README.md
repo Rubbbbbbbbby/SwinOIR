@@ -37,13 +37,10 @@ If you find our paper useful in your research, please consider citing:
 * Urban100 Dataset [(Download Link)](https://www.kaggle.com/datasets/harshraone/urban100)
 
 ## Experimental Results
-## Quantitative comparison (average PSNR/SSIM) of image SR on benchmark datasets using different methods
-| Connection Method | Set5-PSNR↑ | Set14-PSNR↑ | BSD100-PSNR↑ | Urban100-PSNR↑ |
-| :---: | :---: | :---: | :---: | :---: |
-| DSTB-5 | 30.699 | 27.677 | 26.976 | 24.552 |
-| DSTB-7 | 30.692 | 27.678 | 26.983 | 24.560 |
-| IDSTB-5 | **30.778** | **27.738** | **27.071** | **24.640** |
-| IDSTB-7 | 30.693 | 27.662  | 26.974 | 24.539 |
+### Quantitative comparison (average PSNR/SSIM) with other state-of-the-art methods/models for lightweight image super-resolution on benchmark datasets.
+<p align="center">
+  <img src="img/figure_experiment.jpg" width="640" title="experiment">
+</p>
 
 ## Application
 ### Overall two-stage framework
