@@ -51,6 +51,7 @@ If you find our paper useful in your research, please consider citing:
   <img src="img/figure_stage.jpg" width="640" title="stage">
 </p>
 
+### Graphical User Interface 
 <p align="center">
   <img src="img/figure_app.jpg" width="640" title="app">
 </p>
