@@ -37,11 +37,6 @@ If you find our paper useful in your research, please consider citing:
 * Urban100 Dataset [(Download Link)](https://www.kaggle.com/datasets/harshraone/urban100)
 
 ## Experimental Results
-### Example of experimental results of two-stage framework on BSDS300 Dataset
-<p align="center">
-  <img src="img/figure_result_bsds.jpg" width="640" title="Stage-1">
-</p>
-
 ## Quantitative comparison (average PSNR/SSIM) of image SR on benchmark datasets using different methods
 | Connection Method | Set5-PSNR↑ | Set14-PSNR↑ | BSD100-PSNR↑ | Urban100-PSNR↑ |
 | :---: | :---: | :---: | :---: | :---: |
@@ -50,9 +45,14 @@ If you find our paper useful in your research, please consider citing:
 | IDSTB-5 | **30.778** | **27.738** | **27.071** | **24.640** |
 | IDSTB-7 | 30.693 | 27.662  | 26.974 | 24.539 |
 
+## Application
 ### Overall two-stage framework
 <p align="center">
-  <img src="img/figure_stage.jpg" width="640" title="Stage-1">
+  <img src="img/figure_stage.jpg" width="640" title="stage">
+</p>
+
+<p align="center">
+  <img src="img/figure_app.jpg" width="640" title="app">
 </p>
 
 ## References
