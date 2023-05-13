@@ -37,7 +37,6 @@ If you find our paper useful in your research, please consider citing:
 * Urban100 Dataset [(Download Link)](https://www.kaggle.com/datasets/harshraone/urban100)
 
 ## Experimental Results
-### Quantitative comparison (average PSNR/SSIM) with other state-of-the-art methods/models for lightweight image super-resolution on benchmark datasets.
 <p align="center">
   <img src="img/figure_experiment.jpg" width="640" title="experiment">
 </p>
