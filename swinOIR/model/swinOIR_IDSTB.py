@@ -218,210 +218,140 @@ class SwinTransformerBlock(nn.Module):
         flops += 2 * H * W * self.dim * self.dim * self.mlp_ratio
         flops += self.dim * H * W
         return flops
+    
+class PatchMerging(nn.Module):
+
+
+    def __init__(self, input_resolution, dim, norm_layer=nn.LayerNorm):
+        super().__init__()
+        self.input_resolution = input_resolution
+        self.dim = dim
+        self.reduction = nn.Linear(4 * dim, 2 * dim, bias=False)
+        self.norm = norm_layer(4 * dim)
 
     def forward(self, x):
-        block1 = self.gelu(self.block1(x))
-        block2 = self.gelu(self.block2(block1))
-        b2_dense = self.gelu(torch.cat([block1, block2],1))
-        block3 = self.gelu(self.block3(b2_dense))
-        b3_dense = self.gelu(torch.cat([block1, block2, block3], 1))
-        block4 = self.gelu(self.block4(b3_dense))
-        b4_dense = self.gelu(torch.cat([block1, block3, block4], 1))
-        block5 = self.gelu(self.block5(b4_dense))
-        c5_dense = self.gelu(torch.cat([block1, block2, block4, block5], 1))
-        block6 = self.gelu(self.block6(c5_dense))
-        c6_dense = self.gelu(torch.cat([block1, block3, block5, block6], 1))
+
+        H, W = self.input_resolution
+        B, L, C = x.shape
+        assert L == H * W, "input feature has wrong size"
+        assert H % 2 == 0 and W % 2 == 0, f"x size ({H}*{W}) are not even."
+
+        x = x.view(B, H, W, C)
+
+        x0 = x[:, 0::2, 0::2, :] 
+        x1 = x[:, 1::2, 0::2, :]
+        x2 = x[:, 0::2, 1::2, :]
+        x3 = x[:, 1::2, 1::2, :]
+        x = torch.cat([x0, x1, x2, x3], -1) 
+        x = x.view(B, -1, 4 * C) 
+
+        x = self.norm(x)
+        x = self.reduction(x)
+
+        return x
+
+    def extra_repr(self) -> str:
+        return f"input_resolution={self.input_resolution}, dim={self.dim}"
+
+    def flops(self):
+        H, W = self.input_resolution
+        flops = H * W * self.dim
+        flops += (H // 2) * (W // 2) * 4 * self.dim * 2 * self.dim
+        return flops
 
 
-        return c6_dense
+class BasicLayer(nn.Module):
 
-class DSTB8(nn.Module):
-    def __init__(self, dim, input_resolution, num_heads, window_size, use_checkpoint=False):
-        
+    def __init__(self, dim, input_resolution, depth, num_heads, window_size,
+                 mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0.,
+                 drop_path=0., norm_layer=nn.LayerNorm, downsample=None, use_checkpoint=False):
+
         super().__init__()
         self.dim = dim
         self.input_resolution = input_resolution
+        self.depth = depth
         self.use_checkpoint = use_checkpoint
 
-        self.gelu = nn.GELU()
-        self.block1 = SwinTransformerBlock(dim=dim, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block2 = SwinTransformerBlock(dim=dim, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block3 = SwinTransformerBlock(dim=6, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block4 = SwinTransformerBlock(dim=9, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block5 = SwinTransformerBlock(dim=9, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block6 = SwinTransformerBlock(dim=12, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block7 = SwinTransformerBlock(dim=12, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block8 = SwinTransformerBlock(dim=15, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.conv = nn.Conv2d(in_channels=15, out_channels=15, kernel_size=3, stride=1, padding=1)
+        # build blocks
+        self.blocks = nn.ModuleList([
+            SwinTransformerBlock(dim=dim, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size,
+                                 shift_size=0 if (i % 2 == 0) else window_size // 2, mlp_ratio=mlp_ratio,
+                                 qkv_bias=qkv_bias, qk_scale=qk_scale, drop=drop, attn_drop=attn_drop,
+                                 drop_path=drop_path[i] if isinstance(drop_path, list) else drop_path, norm_layer=norm_layer)
+            for i in range(depth)])
 
-    def forward(self, x):
-        block1 = self.gelu(self.block1(x))
-        block2 = self.gelu(self.block2(block1))
-        b2_dense = self.gelu(torch.cat([block1, block2],1))
-        block3 = self.gelu(self.block3(b2_dense))
-        b3_dense = self.gelu(torch.cat([block1, block2, block3], 1))
-        block4 = self.gelu(self.block4(b3_dense))
-        b4_dense = self.gelu(torch.cat([block1, block3, block4], 1))
-        block5 = self.gelu(self.block5(b4_dense))
-        c5_dense = self.gelu(torch.cat([block1, block2, block4, block5], 1))
-        block6 = self.gelu(self.block6(c5_dense))
-        c6_dense = self.gelu(torch.cat([block1, block3, block5, block6], 1))
-        block7 = self.gelu(self.block7(c6_dense))
-        c7_dense = self.gelu(torch.cat([block1, block2, block4, block6, block7], 1))
-        block8 = self.gelu(self.block8(c7_dense))
-        c8_dense = self.gelu(torch.cat([block1, block3, block5, block7, block8], 1))
-        # c8_dense = self.conv(c8_dense)
+        # patch merging layer
+        if downsample is not None:
+            self.downsample = downsample(input_resolution, dim=dim, norm_layer=norm_layer)
+        else:
+            self.downsample = None
 
-        return c8_dense
+    def forward(self, x, x_size):
+        for blk in self.blocks:
+            if self.use_checkpoint:
+                x = checkpoint.checkpoint(blk, x, x_size)
+            else:
+                x = blk(x, x_size)
+        if self.downsample is not None:
+            x = self.downsample(x)
+        return x
 
-class DSTB10(nn.Module):
-    def __init__(self, dim, input_resolution, num_heads, window_size, use_checkpoint=False):
-        
-        super().__init__()
+    def extra_repr(self) -> str:
+        return f"dim={self.dim}, input_resolution={self.input_resolution}, depth={self.depth}"
+
+    def flops(self):
+        flops = 0
+        for blk in self.blocks:
+            flops += blk.flops()
+        if self.downsample is not None:
+            flops += self.downsample.flops()
+        return flops
+    
+class IDSTB(nn.Module):
+
+    def __init__(self, dim, input_resolution, depth, num_heads, window_size,
+                 mlp_ratio=4., qkv_bias=True, qk_scale=None, drop=0., attn_drop=0.,
+                 drop_path=0., norm_layer=nn.LayerNorm, downsample=None, use_checkpoint=False,
+                 img_size=224, patch_size=4, resi_connection='1conv'):
+        super(RSTB, self).__init__()
+
         self.dim = dim
         self.input_resolution = input_resolution
-        self.use_checkpoint = use_checkpoint
 
-        self.gelu = nn.GELU()
-        self.block1 = SwinTransformerBlock(dim=dim, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block2 = SwinTransformerBlock(dim=dim, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block3 = SwinTransformerBlock(dim=6, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block4 = SwinTransformerBlock(dim=9, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block5 = SwinTransformerBlock(dim=9, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block6 = SwinTransformerBlock(dim=12, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block7 = SwinTransformerBlock(dim=12, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block8 = SwinTransformerBlock(dim=15, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block9 = SwinTransformerBlock(dim=15, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block10 = SwinTransformerBlock(dim=18, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
+        self.residual_group = BasicLayer(dim=dim, input_resolution=input_resolution, depth=depth, num_heads=num_heads,
+                                         window_size=window_size, mlp_ratio=mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
+                                         drop=drop, attn_drop=attn_drop, drop_path=drop_path, norm_layer=norm_layer,
+                                         downsample=downsample, use_checkpoint=use_checkpoint)
 
+        if resi_connection == '1conv':
+            self.conv = nn.Conv2d(dim, dim, 3, 1, 1)
+        elif resi_connection == '3conv':
+            # to save parameters and memory
+            self.conv = nn.Sequential(nn.Conv2d(dim, dim // 4, 3, 1, 1), nn.LeakyReLU(negative_slope=0.2, inplace=True),
+                                      nn.Conv2d(dim // 4, dim // 4, 1, 1, 0),
+                                      nn.LeakyReLU(negative_slope=0.2, inplace=True),
+                                      nn.Conv2d(dim // 4, dim, 3, 1, 1))
 
-    def forward(self, x):
-        block1 = self.block1(x)
-        block2 = self.block2(block1)
-        b2_dense = torch.cat([block1, block2],1)
-        block3 = self.block3(b2_dense)
-        b3_dense = torch.cat([block1, block2, block3], 1)
-        block4 = self.block4(b3_dense)
-        b4_dense = torch.cat([block1, block3, block4], 1)
-        block5 = self.block5(b4_dense)
-        c5_dense = torch.cat([block1, block2, block4, block5], 1)
-        block6 = self.block6(c5_dense)
-        c6_dense = torch.cat([block1, block3, block5, block6], 1)
-        block7 = self.block7(c6_dense)
-        c7_dense = torch.cat([block1, block2, block4, block6, block7], 1)
-        block8 = self.block8(c7_dense)
-        c8_dense = torch.cat([block1, block3, block5, block7, block8], 1)
-        block9 = self.block9(c8_dense)
-        c9_dense = torch.cat([block1, block2, block4, block6, block8, block9], 1)
-        block10 = self.block10(c9_dense)
-        c10_dense = torch.cat([block1, block3, block5, block7, block9, block10], 1)
+        self.patch_embed = PatchEmbed(
+            img_size=img_size, patch_size=patch_size, in_chans=0, embed_dim=dim,
+            norm_layer=None)
 
-        return c10_dense
+        self.patch_unembed = PatchUnEmbed(
+            img_size=img_size, patch_size=patch_size, in_chans=0, embed_dim=dim,
+            norm_layer=None)
 
-class DSTB12(nn.Module):
-    def __init__(self, dim, input_resolution, num_heads, window_size, use_checkpoint=False):
-        
-        super().__init__()
-        self.dim = dim
-        self.input_resolution = input_resolution
-        self.use_checkpoint = use_checkpoint
+    def forward(self, x, x_size):
+        return self.patch_embed(self.conv(self.patch_unembed(self.residual_group(x, x_size), x_size))) + x
 
-        self.gelu = nn.GELU()
-        self.block1 = SwinTransformerBlock(dim=dim, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block2 = SwinTransformerBlock(dim=dim, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block3 = SwinTransformerBlock(dim=6, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block4 = SwinTransformerBlock(dim=9, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block5 = SwinTransformerBlock(dim=9, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block6 = SwinTransformerBlock(dim=12, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block7 = SwinTransformerBlock(dim=12, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block8 = SwinTransformerBlock(dim=15, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block9 = SwinTransformerBlock(dim=15, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block10 = SwinTransformerBlock(dim=18, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block11 = SwinTransformerBlock(dim=18, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block12 = SwinTransformerBlock(dim=21, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
+    def flops(self):
+        flops = 0
+        flops += self.residual_group.flops()
+        H, W = self.input_resolution
+        flops += H * W * self.dim * self.dim * 9
+        flops += self.patch_embed.flops()
+        flops += self.patch_unembed.flops()
 
-    def forward(self, x):
-        block1 = self.block1(x)
-        block2 = self.block2(block1)
-        b2_dense = torch.cat([block1, block2],1)
-        block3 = self.block3(b2_dense)
-        b3_dense = torch.cat([block1, block2, block3], 1)
-        block4 = self.block4(b3_dense)
-        b4_dense = torch.cat([block1, block3, block4], 1)
-        block5 = self.block5(b4_dense)
-        c5_dense = torch.cat([block1, block2, block4, block5], 1)
-        block6 = self.block6(c5_dense)
-        c6_dense = torch.cat([block1, block3, block5, block6], 1)
-        block7 = self.block7(c6_dense)
-        c7_dense = torch.cat([block1, block2, block4, block6, block7], 1)
-        block8 = self.block8(c7_dense)
-        c8_dense = torch.cat([block1, block3, block5, block7, block8], 1)
-        block9 = self.block9(c8_dense)
-        c9_dense = torch.cat([block1, block2, block4, block6, block8, block9], 1)
-        block10 = self.block10(c9_dense)
-        c10_dense = torch.cat([block1, block3, block5, block7, block9, block10], 1)
-        block11 = self.block11(c10_dense)
-        c11_dense = torch.cat([block1, block2, block4, block6, block8, block10, block11], 1)
-        block12 = self.block12(c11_dense)
-        c12_dense = torch.cat([block1, block3, block5, block7, block9, block11, block12], 1)
-        # c12_dense = self.conv(c12_dense)
-
-        return c12_dense
-
-class DSTB14(nn.Module):
-    def __init__(self, dim, input_resolution, num_heads, window_size, use_checkpoint=False):
-        
-        super().__init__()
-        self.dim = dim
-        self.input_resolution = input_resolution
-        self.use_checkpoint = use_checkpoint
-
-        self.gelu = nn.GELU()
-        self.block1 = SwinTransformerBlock(dim=dim, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block2 = SwinTransformerBlock(dim=dim, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block3 = SwinTransformerBlock(dim=6, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block4 = SwinTransformerBlock(dim=9, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block5 = SwinTransformerBlock(dim=9, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block6 = SwinTransformerBlock(dim=12, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block7 = SwinTransformerBlock(dim=12, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block8 = SwinTransformerBlock(dim=15, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block9 = SwinTransformerBlock(dim=15, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block10 = SwinTransformerBlock(dim=18, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block11 = SwinTransformerBlock(dim=18, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block12 = SwinTransformerBlock(dim=21, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block13 = SwinTransformerBlock(dim=21, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-        self.block14 = SwinTransformerBlock(dim=24, input_resolution=input_resolution, num_heads=num_heads, window_size=window_size)
-
-    def forward(self, x):
-        block1 = self.block1(x)
-        block2 = self.block2(block1)
-        b2_dense = torch.cat([block1, block2],1)
-        block3 = self.block3(b2_dense)
-        b3_dense = torch.cat([block1, block2, block3], 1)
-        block4 = self.block4(b3_dense)
-        b4_dense = torch.cat([block1, block3, block4], 1)
-        block5 = self.block5(b4_dense)
-        c5_dense = torch.cat([block1, block2, block4, block5], 1)
-        block6 = self.block6(c5_dense)
-        c6_dense = torch.cat([block1, block3, block5, block6], 1)
-        block7 = self.block7(c6_dense)
-        c7_dense = torch.cat([block1, block2, block4, block6, block7], 1)
-        block8 = self.block8(c7_dense)
-        c8_dense = torch.cat([block1, block3, block5, block7, block8], 1)
-        block9 = self.block9(c8_dense)
-        c9_dense = torch.cat([block1, block2, block4, block6, block8, block9], 1)
-        block10 = self.block10(c9_dense)
-        c10_dense = torch.cat([block1, block3, block5, block7, block9, block10], 1)
-        block11 = self.block11(c10_dense)
-        c11_dense = torch.cat([block1, block2, block4, block6, block8, block10, block11], 1)
-        block12 = self.block12(c11_dense)
-        c12_dense = torch.cat([block1, block3, block5, block7, block9, block11, block12], 1)
-        block13 = self.block13(c12_dense)
-        c13_dense = torch.cat([block1, block2, block4, block6, block8, block10, block12, block13], 1)
-        block14 = self.block14(c13_dense)
-        c14_dense = torch.cat([block1, block3, block5, block7, block9, block11, block13, block14], 1)
-
-        return c14_dense
+        return flops
 
 class PatchEmbed(nn.Module):
     def __init__(self, img_size=224, patch_size=4, in_chans=3, embed_dim=96, norm_layer=None):
@@ -486,21 +416,6 @@ class Upsample(nn.Sequential):
             raise ValueError(f'scale {scale} is not supported. ' 'Supported scales: 2^n and 3.')
         super(Upsample, self).__init__(*m)
 
-class UpsampleOneStep(nn.Sequential):
-
-    def __init__(self, scale, num_feat, num_out_ch, input_resolution=None):
-        self.num_feat = num_feat                    #中間特徵的通道數數量
-        self.input_resolution = input_resolution    #輸入的解析度大小
-        m = []
-        m.append(nn.Conv2d(num_feat, (scale ** 2) * num_out_ch, 3, 1, 1))
-        m.append(nn.PixelShuffle(scale))            #使用PixelShuffle上採樣scale倍
-        super(UpsampleOneStep, self).__init__(*m)
-
-    def flops(self):
-        H, W = self.input_resolution
-        flops = H * W * self.num_feat * 3 * 9
-        return flops
-
 
 class swinOIR(nn.Module):
 
@@ -550,26 +465,26 @@ class swinOIR(nn.Module):
         
         self.layers = nn.ModuleList()
 
-        layer1 = DSTB8(dim=in_chans, input_resolution=(patches_resolution[0],patches_resolution[1]),
-                            num_heads=num_heads, window_size=window_size)
-        layer2 = DSTB10(dim=in_chans, input_resolution=(patches_resolution[0],patches_resolution[1]),
-                            num_heads=num_heads, window_size=window_size)
-        layer3 = DSTB12(dim=in_chans, input_resolution=(patches_resolution[0],patches_resolution[1]),
-                            num_heads=num_heads, window_size=window_size)
-        layer4 = DSTB14(dim=in_chans, input_resolution=(patches_resolution[0],patches_resolution[1]),
-                            num_heads=num_heads, window_size=window_size)
-        layer5 = DSTB12(dim=in_chans, input_resolution=(patches_resolution[0],patches_resolution[1]),
-                            num_heads=num_heads, window_size=window_size)
-        layer6 = DSTB10(dim=in_chans, input_resolution=(patches_resolution[0],patches_resolution[1]),
-                            num_heads=num_heads, window_size=window_size)
-        layer7 = DSTB8(dim=in_chans, input_resolution=(patches_resolution[0],patches_resolution[1]),
-                            num_heads=num_heads, window_size=window_size)
-
-        self.layers.append(layer2)
-        self.layers.append(layer3)
-        self.layers.append(layer4)
-        self.layers.append(layer5)
-        self.layers.append(layer6)
+        self.layers = nn.ModuleList()
+        self.layer1= IDSTB(dim=embed_dim, input_resolution=(patches_resolution[0], patches_resolution[1]), depth=depths[0],
+                         num_heads=num_heads[0], window_size=window_size, mlp_ratio=self.mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
+                         drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[sum(depths[:0]):sum(depths[:0 + 1])],  # no impact on SR results
+                         norm_layer=norm_layer, downsample=None, use_checkpoint=use_checkpoint, img_size=img_size, patch_size=patch_size, resi_connection=resi_connection)
+        
+        self.layer2= IDSTB(dim=embed_dim, input_resolution=(patches_resolution[0], patches_resolution[1]), depth=depths[1],
+                         num_heads=num_heads[1], window_size=window_size, mlp_ratio=self.mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
+                         drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[sum(depths[:1]):sum(depths[:1 + 1])],  # no impact on SR results
+                         norm_layer=norm_layer, downsample=None, use_checkpoint=use_checkpoint, img_size=img_size, patch_size=patch_size, resi_connection=resi_connection)
+        
+        self.layer3= IDSTB(dim=embed_dim, input_resolution=(patches_resolution[0], patches_resolution[1]), depth=depths[2],
+                         num_heads=num_heads[2], window_size=window_size, mlp_ratio=self.mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
+                         drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[sum(depths[:2]):sum(depths[:2 + 1])],  # no impact on SR results
+                         norm_layer=norm_layer, downsample=None, use_checkpoint=use_checkpoint, img_size=img_size, patch_size=patch_size, resi_connection=resi_connection)
+        
+        self.layer4= IDSTB(dim=embed_dim, input_resolution=(patches_resolution[0], patches_resolution[1]), depth=depths[3],
+                         num_heads=num_heads[3], window_size=window_size, mlp_ratio=self.mlp_ratio, qkv_bias=qkv_bias, qk_scale=qk_scale,
+                         drop=drop_rate, attn_drop=attn_drop_rate, drop_path=dpr[sum(depths[:3]):sum(depths[:3 + 1])],  # no impact on SR results
+                         norm_layer=norm_layer, downsample=None, use_checkpoint=use_checkpoint, img_size=img_size, patch_size=patch_size, resi_connection=resi_connection)
 
         self.norm = norm_layer(self.num_features)
 
@@ -580,10 +495,6 @@ class swinOIR(nn.Module):
                                                       nn.LeakyReLU(inplace=True))
             self.upsample = Upsample(upscale, num_feat)
             self.conv_last = nn.Conv2d(num_feat, num_out_ch, 3, 1, 1)
-        elif self.upsampler == 'pixelshuffledirect':    
-
-            self.upsample = UpsampleOneStep(upscale, embed_dim, num_out_ch,
-                                            (patches_resolution[0], patches_resolution[1]))
 
         self.apply(self._init_weights)
 
@@ -613,11 +524,24 @@ class swinOIR(nn.Module):
     def forward_features(self, x):
         x_size = (x.shape[2], x.shape[3])
         x = self.patch_embed(x)
-        if self.ape:                        
+        if self.ape:
             x = x + self.absolute_pos_embed
         x = self.pos_drop(x)
-        x = self.norm(x)
+
+        # for layer in self.layers:
+        #     x = layer(x, x_size)
+
+        block1 = self.layer1(x, x_size)
+        block2 = self.layer2(block1, x_size)
+        b2_dense = block1 * block2
+        block3 = self.layer3(b2_dense, x_size)
+        b3_dense = block1 * block2 * block3
+        block4 = self.layer4(b3_dense, x_size)
+        b4_dense = block1 * block3 * block4
+
+        x = self.norm(b4_dense)  # B L C
         x = self.patch_unembed(x, x_size)
+
         return x
 
     def forward(self, x):
