@@ -1,5 +1,5 @@
 import torch.nn as nn
-from model import swinOIR_DSTB, swinOIR_IDSTB
+from model import swinOIR
 
 def make_model(args, parent=False):
     return model(args)
