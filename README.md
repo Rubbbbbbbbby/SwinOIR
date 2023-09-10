@@ -17,10 +17,12 @@ For research project agreement, we don't release training code, please refer to 
 If you find our paper useful in your research, please consider citing:
 
     @article{ju2023resolution,
-      title={Resolution Enhancement Processing on Low Quality Images Using Swin Transformer Based on Interval Dense Connection Strategy},
-      author={Ju, Rui-Yang and Chen, Chih-Chia and Chiang, Jen-Shiun and Lin, Yu-Shian and Chen, Wei-Han and Chien, Chun-Tse},
-      journal={arXiv preprint arXiv:2303.09190},
-      year={2023}
+      title={Resolution enhancement processing on low quality images using swin transformer based on interval dense connection strategy},
+      author={Ju, Rui-Yang and Chen, Chih-Chia and Chiang, Jen-Shiun and Lin, Yu-Shian and Chen, Wei-Han},
+      journal={Multimedia Tools and Applications},
+      pages={1--17},
+      year={2023},
+      publisher={Springer}
     }
   
 ## Requirements
