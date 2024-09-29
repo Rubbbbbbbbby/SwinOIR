@@ -61,7 +61,7 @@ If you find our paper useful in your research, please consider citing:
 
 ## References
 
-<details><summary> <b>Expand</b> </summary>
+<details><summary> <b>GitHub</b> </summary>
   
 * [RLFN](https://github.com/bytedance/RLFN)
 * [EDSR](https://github.com/sanghyun-son/EDSR-PyTorch)
