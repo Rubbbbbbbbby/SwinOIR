@@ -2,12 +2,6 @@
 
 > [Resolution Enhancement Processing on Low Quality Images Using Swin Transformer Based on Interval Dense Connection Strategy](https://arxiv.org/abs/2303.09190)
 
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/a-framework-for-real-time-object-detection/image-super-resolution-on-bsd100-3x-upscaling)](https://paperswithcode.com/sota/image-super-resolution-on-bsd100-3x-upscaling?p=a-framework-for-real-time-object-detection)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/a-framework-for-real-time-object-detection/image-super-resolution-on-set14-3x-upscaling)](https://paperswithcode.com/sota/image-super-resolution-on-set14-3x-upscaling?p=a-framework-for-real-time-object-detection)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/a-framework-for-real-time-object-detection/image-super-resolution-on-set5-2x-upscaling)](https://paperswithcode.com/sota/image-super-resolution-on-set5-2x-upscaling?p=a-framework-for-real-time-object-detection)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/a-framework-for-real-time-object-detection/image-super-resolution-on-set5-3x-upscaling)](https://paperswithcode.com/sota/image-super-resolution-on-set5-3x-upscaling?p=a-framework-for-real-time-object-detection)
-[![PWC](https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/a-framework-for-real-time-object-detection/image-super-resolution-on-urban100-3x)](https://paperswithcode.com/sota/image-super-resolution-on-urban100-3x?p=a-framework-for-real-time-object-detection)
-
 ### SwinOIR Network Architecture
 <p align="center">
   <img src="img/figure_swinoir.jpg" width="640" title="swinoir">
